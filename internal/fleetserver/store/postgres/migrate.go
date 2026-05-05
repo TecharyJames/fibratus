@@ -383,8 +383,6 @@ ALTER TABLE user_groups ADD COLUMN IF NOT EXISTS owner_id TEXT REFERENCES users(
 
 ALTER TABLE accounts ADD COLUMN IF NOT EXISTS require_2fa BOOLEAN DEFAULT FALSE;
 ALTER TABLE global_rules ADD COLUMN IF NOT EXISTS account_id TEXT DEFAULT '';
-ALTER TABLE github_sync_configs DROP CONSTRAINT IF EXISTS github_sync_configs_pkey;
-ALTER TABLE github_sync_configs DROP CONSTRAINT IF EXISTS github_sync_configs_org_id_fkey;
 
 CREATE TABLE IF NOT EXISTS github_sync_configs (
     account_id  TEXT NOT NULL DEFAULT '',
@@ -398,6 +396,12 @@ CREATE TABLE IF NOT EXISTS github_sync_configs (
     scope       TEXT DEFAULT 'account',
     updated_at  TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Drop legacy constraints from earlier schema versions of github_sync_configs.
+-- Runs after CREATE TABLE so a fresh install has the table to alter; the
+-- constraint-level IF EXISTS handles the case where they were never present.
+ALTER TABLE github_sync_configs DROP CONSTRAINT IF EXISTS github_sync_configs_pkey;
+ALTER TABLE github_sync_configs DROP CONSTRAINT IF EXISTS github_sync_configs_org_id_fkey;
 
 ALTER TABLE github_sync_configs ADD COLUMN IF NOT EXISTS account_id TEXT NOT NULL DEFAULT '';
 ALTER TABLE github_sync_configs ADD COLUMN IF NOT EXISTS scope TEXT DEFAULT 'account';
