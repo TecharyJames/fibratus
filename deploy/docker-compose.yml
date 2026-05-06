@@ -29,6 +29,9 @@ services:
     restart: unless-stopped
     environment:
       - TZ=UTC
+      # 64-char hex; generate once with: openssl rand -hex 32
+      # Keep this stable — rotating it invalidates encrypted secrets in the DB.
+      - FLEET_SECRET_KEY=${FLEET_SECRET_KEY:?FLEET_SECRET_KEY must be set in .env or shell environment}
 
   postgres:
     image: postgres:16-alpine
